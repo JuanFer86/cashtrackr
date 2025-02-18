@@ -1,0 +1,27 @@
+{
+  "name": "cashtrackr_backend",
+  "version": "1.0.0",
+  "description": "Project CashTrackr react typescript y nodejs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev:api": "ts-node-dev --respawn --transpile-only src/index.ts --api",
+    "build": "tsc",
+    "start": "node ./dist/index.js"
+  },
+  "author": "Juan Narvaez",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0",
+    "ts-node-dev": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/morgan": "^1.9.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}
