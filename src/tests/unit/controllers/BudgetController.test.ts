@@ -1,10 +1,10 @@
 import { createRequest, createResponse } from "node-mocks-http";
-import { budgets } from "../mocks/budgets";
-import { BudgetController } from "../../controllers/BudgetController";
-import Budget from "../../models/Budget";
-import Expense from "../../models/expenses";
+import { budgets } from "../../mocks/budgets";
+import { BudgetController } from "../../../controllers/BudgetController";
+import Budget from "../../../models/Budget";
+import Expense from "../../../models/expenses";
 
-jest.mock("../../models/Budget", () => ({
+jest.mock("../../../models/Budget", () => ({
   findAll: jest.fn(),
   create: jest.fn(),
   findByPk: jest.fn(),
@@ -214,5 +214,57 @@ describe("BudgetController.getBudgetById", () => {
 
     expect(res.statusCode).toBe(201);
     expect(budget.expenses).toHaveLength(0);
+  });
+});
+
+describe("BudgetController.updateBudgetById", () => {
+  it("should update a budget with ID 1", async () => {
+    const mockBudget = {
+      update: jest.fn().mockResolvedValue(true),
+    };
+
+    const req = createRequest({
+      method: "PUT",
+      url: "/api/budgets/:budgetId",
+      budget: mockBudget,
+      body: { name: "Updated Budget", amount: 5000 },
+    });
+
+    const res = createResponse();
+
+    await BudgetController.updateBudgetById(req, res);
+
+    expect(res.statusCode).toBe(201);
+    expect(res._getJSONData()).toEqual({
+      message: "budget updated succesfully",
+    });
+    expect(mockBudget.update).toHaveBeenCalled();
+    expect(mockBudget.update).toHaveBeenCalledTimes(1);
+    expect(mockBudget.update).toHaveBeenCalledWith(req.body);
+  });
+});
+
+describe("BudgetController.deleteBudgetById", () => {
+  it("should delete a budget with ID 1", async () => {
+    const mockBudget = {
+      destroy: jest.fn().mockResolvedValue(true),
+    };
+
+    const req = createRequest({
+      method: "DELETE",
+      url: "/api/budgets/:budgetId",
+      budget: mockBudget,
+    });
+
+    const res = createResponse();
+
+    await BudgetController.deleteBudgetById(req, res);
+
+    expect(res.statusCode).toBe(201);
+    expect(res._getJSONData()).toEqual({
+      message: "budget deleted succesfully",
+    });
+    expect(mockBudget.destroy).toHaveBeenCalled();
+    expect(mockBudget.destroy).toHaveBeenCalledTimes(1);
   });
 });
