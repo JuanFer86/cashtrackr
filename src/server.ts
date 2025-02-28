@@ -6,14 +6,14 @@ import budgetRouter from "./routes/budgetRouter";
 import authRouter from "./routes/AuthRouter";
 import { limiter } from "./config/limiter";
 
-async function connectDb() {
+export async function connectDb() {
   try {
     await db.authenticate();
     db.sync();
-    console.log(colors.blue.bold("Succesfully connection to DB"));
+    // console.log(colors.blue.bold("Succesfully connection to DB"));
   } catch (error) {
-    console.log(error);
-    console.log(colors.red.bold("failed connection to DB"));
+    // console.log(error);
+    // console.log(colors.red.bold("failed connection to DB"));
   }
 }
 

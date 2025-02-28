@@ -17,9 +17,15 @@ export class AuthController {
       return;
     }
     try {
-      const user = new User(req.body);
+      const user = await User.create(req.body);
       user.password = await hashPassword(password);
-      user.token = generateToken();
+      const token = generateToken();
+      user.token = token;
+
+      if (process.env.NODE_ENV !== "production") {
+        globalThis.cashTrackrConfirmationToken = token;
+      }
+
       await user.save();
 
       await AuthEmail.sendConfirmationEmail({
@@ -79,8 +85,6 @@ export class AuthController {
     }
 
     const tokenJWT = generateJWT(user.id);
-
-    console.log(tokenJWT);
 
     res.status(201).json({ token: tokenJWT });
   };
