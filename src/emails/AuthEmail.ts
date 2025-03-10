@@ -15,7 +15,7 @@ export class AuthEmail {
       html: `
         <p>Hola: ${user.name}, you have created an account in Cashtrackr, it's almost done</p>
         <p>Visit the following link: <a></a></p>
-        <a href="#">Confirm account</a>
+        <a href="${process.env.FRONTEND_URL}/auth/confirm-account">Confirm account</a>
         <p>enter the code: <b>${user.token}</b></p>
         `,
     });
@@ -30,7 +30,7 @@ export class AuthEmail {
       html: `
         <p>Hola: ${user.name}, you have requested to change your password </p>
         <p>Visit the following link: <a></a></p>
-        <a href="#">Reset Password</a>
+        <a href="${process.env.FRONTEND_URL}/auth/new-password">Reset Password</a>
         <p>enter the code: <b>${user.token}</b></p>
         `,
     });
