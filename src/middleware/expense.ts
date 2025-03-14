@@ -70,3 +70,19 @@ export const validateExpenseExist = async (
     res.status(500).json({ message: "it was an error" });
   }
 };
+
+export const belongsToBudget = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { expense, budget } = req;
+
+  if (budget.id !== expense.budgetId) {
+    const error = new Error("Expense does not belong to the budget");
+    res.status(403).json({ message: error.message });
+    return;
+  }
+
+  next();
+};
