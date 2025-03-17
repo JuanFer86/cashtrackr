@@ -36,4 +36,21 @@ export class AuthEmail {
     });
     // console.log(email.messageId);
   };
+
+  static sendConfirmationNewEmail = async (
+    user: EmailType,
+    newEmail: string
+  ) => {
+    const email = await transport.sendMail({
+      from: "CashTrackr <admin@cashtrackr.com>",
+      to: user.email,
+      subject: "Cashtrackr - Confirmation new email",
+      html: `
+        <p>Hola: ${user.name}, you have changed your information </p>
+        <p>to this new one ${newEmail}</p>
+        <a href="${process.env.FRONTEND_URL}/auth/login">login here again</a>
+        `,
+    });
+    // console.log(email.messageId);
+  };
 }

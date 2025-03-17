@@ -149,6 +149,35 @@ export class AuthController {
     res.status(201).json(req.user);
   };
 
+  static updateUser = async (req: Request, res: Response) => {
+    const { name, email } = req.body;
+    const emailExists = await User.findOne({ where: { email } });
+
+    if (emailExists) {
+      const error = new Error("Email already exists");
+      res.status(409).json({ message: error.message });
+      return;
+    }
+
+    const user = await User.findByPk(req.user.id);
+
+    await AuthEmail.sendConfirmationNewEmail(
+      {
+        name: user.name,
+        email: user.email,
+        token: user.token,
+      },
+      email
+    );
+
+    user.name = name;
+    user.email = email;
+
+    await user.save();
+
+    res.status(201).json({ message: "User updated" });
+  };
+
   static updateCurrentUserPassword = async (req: Request, res: Response) => {
     const { current_password, password } = req.body;
 

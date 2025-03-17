@@ -74,6 +74,15 @@ router.post(
 
 router.get("/user", authenticate, AuthController.user);
 
+router.put(
+  "/user",
+  authenticate,
+  body("name").notEmpty().withMessage("Name can not be empty"),
+  body("email").notEmpty().isEmail().withMessage("Email is not valid"),
+  handleInputErrors,
+  AuthController.updateUser
+);
+
 router.post(
   "/update-password",
   authenticate,

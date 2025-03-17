@@ -92,131 +92,206 @@ describe("AuthController.createAccount", () => {
       token: "123456",
     });
   });
+});
 
-  describe("AuthController.login", () => {
-    it("should return 404 if user is not found", async () => {
-      (User.findOne as jest.Mock).mockResolvedValue(false);
+describe("AuthController.login", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
 
-      const req = createRequest({
-        method: "POST",
-        url: "/api/auth/login",
-        body: {
-          email: "test@test.com",
-          password: "testpassword",
-        },
-      });
-      const res = createResponse();
+  it("should return 404 if user is not found", async () => {
+    (User.findOne as jest.Mock).mockResolvedValue(false);
 
-      await AuthController.login(req, res);
-
-      expect(res.statusCode).toBe(404);
-      expect(res._getJSONData()).toHaveProperty("message", "User not found");
-      expect(User.findOne).toHaveBeenCalled();
-      expect(User.findOne).toHaveBeenCalledTimes(1);
-    });
-
-    it("should return 403 if user has not been confirmed", async () => {
-      (User.findOne as jest.Mock).mockResolvedValue({
-        id: 1,
+    const req = createRequest({
+      method: "POST",
+      url: "/api/auth/login",
+      body: {
         email: "test@test.com",
         password: "testpassword",
-        confirmed: false,
-      });
+      },
+    });
+    const res = createResponse();
 
-      const req = createRequest({
-        method: "POST",
-        url: "/api/auth/login",
-        body: {
-          email: "test@test.com",
-          password: "testpassword",
-        },
-      });
-      const res = createResponse();
+    await AuthController.login(req, res);
 
-      await AuthController.login(req, res);
+    expect(res.statusCode).toBe(404);
+    expect(res._getJSONData()).toHaveProperty("message", "User not found");
+    expect(User.findOne).toHaveBeenCalled();
+    expect(User.findOne).toHaveBeenCalledTimes(1);
+  });
 
-      expect(res.statusCode).toBe(403);
-      expect(res._getJSONData()).toHaveProperty(
-        "message",
-        "User is not confirmed"
-      );
-      expect(User.findOne).toHaveBeenCalled();
-      expect(User.findOne).toHaveBeenCalledTimes(1);
+  it("should return 403 if user has not been confirmed", async () => {
+    (User.findOne as jest.Mock).mockResolvedValue({
+      id: 1,
+      email: "test@test.com",
+      password: "testpassword",
+      confirmed: false,
     });
 
-    it("should return 401 if user password is wrong", async () => {
-      const userMock = {
-        id: 1,
+    const req = createRequest({
+      method: "POST",
+      url: "/api/auth/login",
+      body: {
         email: "test@test.com",
         password: "testpassword",
-        confirmed: true,
-      };
-      (User.findOne as jest.Mock).mockResolvedValue(userMock);
-
-      const req = createRequest({
-        method: "POST",
-        url: "/api/auth/login",
-        body: {
-          email: "test@test.com",
-          password: "testpassword",
-        },
-      });
-      const res = createResponse();
-      (checkPassword as jest.Mock).mockResolvedValue(false);
-
-      await AuthController.login(req, res);
-
-      expect(res.statusCode).toBe(401);
-      expect(res._getJSONData()).toHaveProperty(
-        "message",
-        "Password is incorrect"
-      );
-      expect(User.findOne).toHaveBeenCalled();
-      expect(User.findOne).toHaveBeenCalledTimes(1);
-      expect(checkPassword).toHaveBeenCalled();
-      expect(checkPassword).toHaveBeenCalledTimes(1);
-      expect(checkPassword).toHaveBeenLastCalledWith(
-        req.body.password,
-        userMock.password
-      );
+      },
     });
+    const res = createResponse();
 
-    it("should authenticate user and return JWT", async () => {
-      const userMock = {
-        id: 1,
+    await AuthController.login(req, res);
+
+    expect(res.statusCode).toBe(403);
+    expect(res._getJSONData()).toHaveProperty(
+      "message",
+      "User is not confirmed"
+    );
+    expect(User.findOne).toHaveBeenCalled();
+    expect(User.findOne).toHaveBeenCalledTimes(1);
+  });
+
+  it("should return 401 if user password is wrong", async () => {
+    const userMock = {
+      id: 1,
+      email: "test@test.com",
+      password: "testpassword",
+      confirmed: true,
+    };
+    (User.findOne as jest.Mock).mockResolvedValue(userMock);
+
+    const req = createRequest({
+      method: "POST",
+      url: "/api/auth/login",
+      body: {
         email: "test@test.com",
         password: "testpassword",
-        confirmed: true,
-      };
-
-      const req = createRequest({
-        method: "POST",
-        url: "/api/auth/login",
-        body: {
-          email: "test@test.com",
-          password: "testpassword",
-        },
-      });
-      const res = createResponse();
-
-      const fakeJwt = "fake_jwt";
-      (User.findOne as jest.Mock).mockResolvedValue(userMock);
-      (checkPassword as jest.Mock).mockResolvedValue(true);
-      (generateJWT as jest.Mock).mockReturnValue(fakeJwt);
-
-      await AuthController.login(req, res);
-
-      expect(res.statusCode).toBe(201);
-      expect(res._getJSONData()).toHaveProperty("token", fakeJwt);
-      expect(User.findOne).toHaveBeenCalled();
-      expect(User.findOne).toHaveBeenCalledTimes(1);
-      expect(checkPassword).toHaveBeenCalledTimes(1);
-      expect(checkPassword).toHaveBeenLastCalledWith(
-        req.body.password,
-        userMock.password
-      );
-      expect(generateJWT).toHaveBeenCalledTimes(1);
-      expect(generateJWT).toHaveBeenLastCalledWith(userMock.id);
+      },
     });
+    const res = createResponse();
+    (checkPassword as jest.Mock).mockResolvedValue(false);
+
+    await AuthController.login(req, res);
+
+    expect(res.statusCode).toBe(401);
+    expect(res._getJSONData()).toHaveProperty(
+      "message",
+      "Password is incorrect"
+    );
+    expect(User.findOne).toHaveBeenCalled();
+    expect(User.findOne).toHaveBeenCalledTimes(1);
+    expect(checkPassword).toHaveBeenCalled();
+    expect(checkPassword).toHaveBeenCalledTimes(1);
+    expect(checkPassword).toHaveBeenLastCalledWith(
+      req.body.password,
+      userMock.password
+    );
+  });
+
+  it("should authenticate user and return JWT", async () => {
+    const userMock = {
+      id: 1,
+      email: "test@test.com",
+      password: "testpassword",
+      confirmed: true,
+    };
+
+    const req = createRequest({
+      method: "POST",
+      url: "/api/auth/login",
+      body: {
+        email: "test@test.com",
+        password: "testpassword",
+      },
+    });
+    const res = createResponse();
+
+    const fakeJwt = "fake_jwt";
+    (User.findOne as jest.Mock).mockResolvedValue(userMock);
+    (checkPassword as jest.Mock).mockResolvedValue(true);
+    (generateJWT as jest.Mock).mockReturnValue(fakeJwt);
+
+    await AuthController.login(req, res);
+
+    expect(res.statusCode).toBe(201);
+    expect(res._getJSONData()).toHaveProperty("token", fakeJwt);
+    expect(User.findOne).toHaveBeenCalled();
+    expect(User.findOne).toHaveBeenCalledTimes(1);
+    expect(checkPassword).toHaveBeenCalledTimes(1);
+    expect(checkPassword).toHaveBeenLastCalledWith(
+      req.body.password,
+      userMock.password
+    );
+    expect(generateJWT).toHaveBeenCalledTimes(1);
+    expect(generateJWT).toHaveBeenLastCalledWith(userMock.id);
+  });
+});
+
+describe("AuthController.updateUser", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it("should return 409 status an error message if email already exists", async () => {
+    const userMock = {
+      id: 2,
+      email: "testnew@test.com",
+      password: "testnewpassword",
+      confirmed: true,
+    };
+
+    const req = createRequest({
+      method: "PUT",
+      url: "/api/auth/user",
+      body: {
+        name: "new Test name",
+        email: "testnew@test.com",
+      },
+    });
+
+    const res = createResponse();
+
+    (User.findOne as jest.Mock).mockResolvedValue(userMock);
+
+    await AuthController.updateUser(req, res);
+
+    expect(res.statusCode).toBe(409);
+    expect(res._getJSONData()).toHaveProperty(
+      "message",
+      "Email already exists"
+    );
+    expect(User.findOne).toHaveBeenCalled();
+    expect(User.findOne).toHaveBeenCalledTimes(1);
+  });
+
+  it("should update user and return a success message", async () => {
+    const userMock = {
+      id: 2,
+      email: "test@test.com",
+      password: "testpassword",
+      confirmed: true,
+      save: jest.fn(),
+    };
+
+    const req = createRequest({
+      method: "PUT",
+      url: "/api/auth/user",
+      body: {
+        name: "new Test name",
+        email: "testnew@test.com",
+      },
+      user: { id: 1 },
+    });
+
+    const res = createResponse();
+
+    (User.findOne as jest.Mock).mockResolvedValue(false);
+    (User.findByPk as jest.Mock).mockResolvedValue(userMock);
+    jest
+      .spyOn(AuthEmail, "sendConfirmationNewEmail")
+      .mockImplementation(() => Promise.resolve());
+
+    await AuthController.updateUser(req, res);
+
+    expect(res.statusCode).toBe(201);
+    expect(res._getJSONData()).toHaveProperty("message", "User updated");
   });
 });
