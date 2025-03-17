@@ -154,13 +154,14 @@ export class AuthController {
     try {
       const emailExists = await User.findOne({ where: { email } });
 
-      if (emailExists) {
+      if (emailExists && emailExists.id !== req.user.id) {
         const error = new Error("Email already exists");
         res.status(409).json({ message: error.message });
         return;
       }
 
       const user = await User.findByPk(req.user.id);
+      // await User.update({ name, email }, {where: { id: req.user.id }}); // this could be another way to update the user
 
       await AuthEmail.sendConfirmationNewEmail(
         {
